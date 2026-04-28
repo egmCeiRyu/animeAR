@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no">
-<title>AR PhotoFrame Fixed Character</title>
+<title>AR PhotoFrame Fixed</title>
 
 <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
 <script src="https://unpkg.com/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
@@ -141,52 +141,48 @@ z-index:90;
 <div id="flash"></div>
 
 <script>
-const app = document.getElementById("app");
-const loading = document.getElementById("loading");
-const guide = document.getElementById("guide");
-const captureBtn = document.getElementById("captureBtn");
-const resetBtn = document.getElementById("resetBtn");
+const app=document.getElementById("app");
+const loading=document.getElementById("loading");
+const guide=document.getElementById("guide");
+const captureBtn=document.getElementById("captureBtn");
+const resetBtn=document.getElementById("resetBtn");
 
-let scanAR, renderer, scene, camera;
-let mascot, selfieVideo;
-let selfieMode = false;
+let scanAR,renderer,scene,camera;
+let mascot,selfieVideo;
+let selfieMode=false;
 
-const characterFiles = [
+const characterFiles=[
 "./HayamiHiro.png",
 "./KamihamaKoji.png",
 "./NishinaKazuki.png"
 ];
 
-window.addEventListener("load", startAR);
+window.addEventListener("load",startAR);
 
 async function startAR(){
 
-scanAR = new window.MINDAR.IMAGE.MindARThree({
-container: app,
+scanAR=new window.MINDAR.IMAGE.MindARThree({
+container:app,
 imageTargetSrc:"./targets.mind",
 uiScanning:false,
 uiLoading:false,
 uiError:false,
-videoSettings:{
-facingMode:{ideal:"environment"}
-}
+videoSettings:{facingMode:{ideal:"environment"}}
 });
 
-renderer = scanAR.renderer;
-scene = scanAR.scene;
-camera = scanAR.camera;
+renderer=scanAR.renderer;
+scene=scanAR.scene;
+camera=scanAR.camera;
 
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 
-scene.add(new THREE.HemisphereLight(0xffffff,0xbbbbff,1.4));
-
 for(let i=0;i<3;i++){
 
-const texture = await new THREE.TextureLoader().loadAsync(characterFiles[i]);
-texture.encoding = THREE.sRGBEncoding;
+const texture=await new THREE.TextureLoader().loadAsync(characterFiles[i]);
+texture.encoding=THREE.sRGBEncoding;
 
-const mesh = new THREE.Mesh(
+const mesh=new THREE.Mesh(
 new THREE.PlaneGeometry(2.8,4.2),
 new THREE.MeshBasicMaterial({
 map:texture,
@@ -195,11 +191,11 @@ alphaTest:0.2
 })
 );
 
-const anchor = scanAR.addAnchor(i);
+const anchor=scanAR.addAnchor(i);
 anchor.group.add(mesh);
 
-anchor.onTargetFound = async ()=>{
-mascot = mesh;
+anchor.onTargetFound=async()=>{
+mascot=mesh;
 await startSelfie();
 };
 
@@ -212,27 +208,26 @@ loading.style.display="none";
 renderer.setAnimationLoop(()=>{
 renderer.render(scene,camera);
 });
-
 }
 
 async function startSelfie(){
 
-if(selfieMode) return;
-selfieMode = true;
+if(selfieMode)return;
+selfieMode=true;
 
 guide.innerHTML="② 写真を撮ってください";
 
 await scanAR.stop();
 app.innerHTML="";
 
-selfieVideo = document.createElement("video");
-selfieVideo.autoplay = true;
-selfieVideo.playsInline = true;
-selfieVideo.muted = true;
-selfieVideo.style.transform = "scaleX(-1)";
+selfieVideo=document.createElement("video");
+selfieVideo.autoplay=true;
+selfieVideo.playsInline=true;
+selfieVideo.muted=true;
+selfieVideo.style.transform="scaleX(-1)";
 app.appendChild(selfieVideo);
 
-const stream = await navigator.mediaDevices.getUserMedia({
+const stream=await navigator.mediaDevices.getUserMedia({
 video:{
 facingMode:"user",
 width:{ideal:2560},
@@ -241,10 +236,10 @@ height:{ideal:1440}
 audio:false
 });
 
-selfieVideo.srcObject = stream;
+selfieVideo.srcObject=stream;
 await selfieVideo.play();
 
-renderer = new THREE.WebGLRenderer({
+renderer=new THREE.WebGLRenderer({
 alpha:true,
 antialias:true,
 preserveDrawingBuffer:true
@@ -255,25 +250,31 @@ renderer.setSize(innerWidth,innerHeight);
 
 app.appendChild(renderer.domElement);
 
-scene = new THREE.Scene();
+scene=new THREE.Scene();
 
-/* CAMERA FIXA 2D */
-camera = new THREE.OrthographicCamera(
-innerWidth / -200,
-innerWidth / 200,
-innerHeight / 200,
-innerHeight / -200,
-0.1,
-100
+/* CAMERA NORMAL */
+camera=new THREE.OrthographicCamera(
+-1,1,1,-1,0.1,10
 );
 
-camera.position.z = 10;
+camera.position.z=5;
+
+/* DUPLICA PERSONAGEM PARA NOVA CENA */
+const texture=mascot.material.map;
+
+mascot=new THREE.Mesh(
+new THREE.PlaneGeometry(0.55,0.82),
+new THREE.MeshBasicMaterial({
+map:texture,
+transparent:true,
+alphaTest:0.2
+})
+);
 
 scene.add(mascot);
 
-/* FIXO NA TELA */
-mascot.scale.set(55,55,55);
-mascot.position.set(70,-95,0);
+/* FIXO NA DIREITA */
+mascot.position.set(0.58,-0.32,0);
 
 captureBtn.style.display="block";
 resetBtn.style.display="block";
@@ -285,14 +286,14 @@ function animate(){
 
 requestAnimationFrame(animate);
 
-if(!selfieMode || !mascot) return;
+if(!selfieMode)return;
 
 renderer.render(scene,camera);
 }
 
 function flash(){
 
-const el = document.getElementById("flash");
+const el=document.getElementById("flash");
 el.style.transition="none";
 el.style.opacity="0.95";
 
@@ -306,67 +307,44 @@ async function takePhoto(){
 
 flash();
 
-const out = document.createElement("canvas");
-out.width = innerWidth * 3;
-out.height = innerHeight * 3;
+const out=document.createElement("canvas");
+out.width=innerWidth*3;
+out.height=innerHeight*3;
 
-const ctx = out.getContext("2d");
+const ctx=out.getContext("2d");
 
-const vw = selfieVideo.videoWidth;
-const vh = selfieVideo.videoHeight;
-const cw = out.width;
-const ch = out.height;
-
-const vr = vw/vh;
-const cr = cw/ch;
-
-let sx,sy,sw,sh;
-
-if(vr>cr){
-sh=vh;
-sw=vh*cr;
-sx=(vw-sw)/2;
-sy=0;
-}else{
-sw=vw;
-sh=vw/cr;
-sx=0;
-sy=(vh-sh)/2;
-}
+const vw=selfieVideo.videoWidth;
+const vh=selfieVideo.videoHeight;
+const cw=out.width;
+const ch=out.height;
 
 ctx.save();
 ctx.scale(-1,1);
-
-ctx.drawImage(selfieVideo,sx,sy,sw,sh,-cw,0,cw,ch);
-
+ctx.drawImage(selfieVideo,0,0,vw,vh,-cw,0,cw,ch);
 ctx.restore();
 
 ctx.drawImage(renderer.domElement,0,0,cw,ch);
 
 out.toBlob(async(blob)=>{
 
-const file = new File([blob],"ar-selfie.jpg",{type:"image/jpeg"});
+const file=new File([blob],"ar-selfie.jpg",{type:"image/jpeg"});
 
 if(navigator.canShare && navigator.canShare({files:[file]})){
 try{
-await navigator.share({
-files:[file],
-title:"AR Photo"
-});
+await navigator.share({files:[file],title:"AR Photo"});
 return;
 }catch(e){}
 }
 
-const url = URL.createObjectURL(blob);
-const a = document.createElement("a");
-a.href = url;
-a.download = "ar-selfie.jpg";
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="ar-selfie.jpg";
 a.click();
 
 setTimeout(()=>URL.revokeObjectURL(url),1000);
 
 },"image/jpeg",1.0);
-
 }
 
 function resetApp(){
@@ -377,9 +355,7 @@ captureBtn.addEventListener("click",takePhoto);
 resetBtn.addEventListener("click",resetApp);
 
 window.addEventListener("resize",()=>{
-
-if(renderer) renderer.setSize(innerWidth,innerHeight);
-
+if(renderer)renderer.setSize(innerWidth,innerHeight);
 });
 </script>
 
