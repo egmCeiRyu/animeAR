@@ -262,29 +262,35 @@ const ctx=out.getContext("2d");
 
 ctx.save();
 ctx.scale(-1,1);
-ctx.drawImage(selfieVideo,0,0,-out.width,0,out.width,out.height);
+
+ctx.drawImage(
+selfieVideo,
+-out.width,0,
+out.width,out.height
+);
+
 ctx.restore();
 
-ctx.drawImage(renderer.domElement,0,0,out.width,out.height);
+ctx.drawImage(
+renderer.domElement,
+0,0,
+out.width,out.height
+);
 
 out.toBlob(async(blob)=>{
 
 const file=new File([blob],"ar-selfie.jpg",{type:"image/jpeg"});
 
-if(navigator.canShare && navigator.canShare({files:[file]})){
-try{
-await navigator.share({files:[file],title:"AR Photo"});
-return;
-}catch(e){}
-}
-
 const url=URL.createObjectURL(blob);
+
 const a=document.createElement("a");
 a.href=url;
 a.download="ar-selfie.jpg";
 a.click();
 
-setTimeout(()=>URL.revokeObjectURL(url),1000);
+setTimeout(()=>{
+URL.revokeObjectURL(url);
+},1000);
 
 },"image/jpeg",1.0);
 }
