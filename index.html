@@ -250,42 +250,31 @@ el.style.opacity="0";
 },40);
 }
 
-async function takePhoto(){
-
-flash();
-
-const out=document.createElement("canvas");
-out.width=innerWidth*3;
-out.height=innerHeight*3;
-
-const ctx=out.getContext("2d");
-
-ctx.save();
-ctx.scale(-1,1);
-
-ctx.drawImage(
-selfieVideo,
--out.width,0,
-out.width,out.height
-);
-
-ctx.restore();
-
-ctx.drawImage(
-renderer.domElement,
-0,0,
-out.width,out.height
-);
-
 out.toBlob(async(blob)=>{
 
-const file=new File([blob],"ar-selfie.jpg",{type:"image/jpeg"});
+const file = new File(
+  [blob],
+  "ar-selfie.jpg",
+  {type:"image/jpeg"}
+);
 
-const url=URL.createObjectURL(blob);
+/* menu nativo salvar/compartilhar */
+if(navigator.canShare && navigator.canShare({files:[file]})){
+  try{
+    await navigator.share({
+      files:[file],
+      title:"AR Photo"
+    });
+    return;
+  }catch(e){}
+}
 
-const a=document.createElement("a");
-a.href=url;
-a.download="ar-selfie.jpg";
+/* fallback download */
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+a.href = url;
+a.download = "ar-selfie.jpg";
 a.click();
 
 setTimeout(()=>{
@@ -293,7 +282,6 @@ URL.revokeObjectURL(url);
 },1000);
 
 },"image/jpeg",1.0);
-}
 
 function resetApp(){location.reload();}
 
