@@ -188,12 +188,15 @@ const texture = await new THREE.TextureLoader().loadAsync(characterFiles[i]);
 texture.encoding = THREE.sRGBEncoding;
 
 const mesh = new THREE.Mesh(
-new THREE.PlaneGeometry(2.8,4.2),
-new THREE.MeshBasicMaterial({
-map:texture,
-transparent:true,
-alphaTest:0.2
-})
+  new THREE.PlaneGeometry(2.8, 4.2),
+  new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    alphaTest: 0.2,
+
+    /* brilho do personagem */
+    color: new THREE.Color(1.38, 1.38, 1.38)
+  })
 );
 
 const anchor = scanAR.addAnchor(i);
