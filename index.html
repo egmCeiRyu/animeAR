@@ -238,50 +238,75 @@ mascot.rotation.set(0,0,0);
 renderer.render(scene,camera);
 }
 
-function flash(){
+async function takePhoto(){
 
-const el=document.getElementById("flash");
-el.style.transition="none";
-el.style.opacity="0.95";
+flash();
 
-setTimeout(()=>{
-el.style.transition="opacity .35s ease";
-el.style.opacity="0";
-},40);
+const out=document.createElement("canvas");
+out.width=innerWidth * 3;
+out.height=innerHeight * 3;
+
+const ctx=out.getContext("2d");
+
+const vw=selfieVideo.videoWidth;
+const vh=selfieVideo.videoHeight;
+const cw=out.width;
+const ch=out.height;
+
+const vr=vw/vh;
+const cr=cw/ch;
+
+let sx,sy,sw,sh;
+
+if(vr>cr){
+sh=vh;
+sw=vh*cr;
+sx=(vw-sw)/2;
+sy=0;
+}else{
+sw=vw;
+sh=vw/cr;
+sx=0;
+sy=(vh-sh)/2;
 }
+
+ctx.save();
+ctx.scale(-1,1);
+
+ctx.drawImage(
+selfieVideo,
+sx,sy,sw,sh,
+-cw,0,cw,ch
+);
+
+ctx.restore();
+
+ctx.drawImage(renderer.domElement,0,0,cw,ch);
 
 out.toBlob(async(blob)=>{
 
-const file = new File(
-  [blob],
-  "ar-selfie.jpg",
-  {type:"image/jpeg"}
-);
+const file=new File([blob],"ar-selfie.jpg",{type:"image/jpeg"});
 
-/* menu nativo salvar/compartilhar */
 if(navigator.canShare && navigator.canShare({files:[file]})){
-  try{
-    await navigator.share({
-      files:[file],
-      title:"AR Photo"
-    });
-    return;
-  }catch(e){}
+try{
+await navigator.share({
+files:[file],
+title:"AR Photo"
+});
+return;
+}catch(e){}
 }
 
-/* fallback download */
-const url = URL.createObjectURL(blob);
-
-const a = document.createElement("a");
-a.href = url;
-a.download = "ar-selfie.jpg";
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="ar-selfie.jpg";
 a.click();
 
-setTimeout(()=>{
-URL.revokeObjectURL(url);
-},1000);
+setTimeout(()=>URL.revokeObjectURL(url),1000);
 
 },"image/jpeg",1.0);
+}
 
 function resetApp(){location.reload();}
 
