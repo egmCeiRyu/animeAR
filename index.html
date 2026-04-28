@@ -240,34 +240,37 @@ renderer.render(scene,camera);
 
 async function takePhoto(){
 
+if(!selfieVideo || selfieVideo.videoWidth === 0) return;
+if(!renderer) return;
+
 flash();
 
-const out=document.createElement("canvas");
-out.width=innerWidth * 3;
-out.height=innerHeight * 3;
+const out = document.createElement("canvas");
+out.width = innerWidth * 3;
+out.height = innerHeight * 3;
 
-const ctx=out.getContext("2d");
+const ctx = out.getContext("2d");
 
-const vw=selfieVideo.videoWidth;
-const vh=selfieVideo.videoHeight;
-const cw=out.width;
-const ch=out.height;
+const vw = selfieVideo.videoWidth;
+const vh = selfieVideo.videoHeight;
+const cw = out.width;
+const ch = out.height;
 
-const vr=vw/vh;
-const cr=cw/ch;
+const vr = vw / vh;
+const cr = cw / ch;
 
-let sx,sy,sw,sh;
+let sx, sy, sw, sh;
 
-if(vr>cr){
-sh=vh;
-sw=vh*cr;
-sx=(vw-sw)/2;
-sy=0;
+if(vr > cr){
+sh = vh;
+sw = vh * cr;
+sx = (vw - sw) / 2;
+sy = 0;
 }else{
-sw=vw;
-sh=vw/cr;
-sx=0;
-sy=(vh-sh)/2;
+sw = vw;
+sh = vw / cr;
+sx = 0;
+sy = (vh - sh) / 2;
 }
 
 ctx.save();
@@ -281,12 +284,22 @@ sx,sy,sw,sh,
 
 ctx.restore();
 
-ctx.drawImage(renderer.domElement,0,0,cw,ch);
+ctx.drawImage(
+renderer.domElement,
+0,0,cw,ch
+);
 
 out.toBlob(async(blob)=>{
 
-const file=new File([blob],"ar-selfie.jpg",{type:"image/jpeg"});
+if(!blob) return;
 
+const file = new File(
+[blob],
+"ar-selfie.jpg",
+{type:"image/jpeg"}
+);
+
+/* menu salvar nativo */
 if(navigator.canShare && navigator.canShare({files:[file]})){
 try{
 await navigator.share({
@@ -297,15 +310,22 @@ return;
 }catch(e){}
 }
 
-const url=URL.createObjectURL(blob);
-const a=document.createElement("a");
-a.href=url;
-a.download="ar-selfie.jpg";
-a.click();
+/* fallback */
+const url = URL.createObjectURL(blob);
 
-setTimeout(()=>URL.revokeObjectURL(url),1000);
+const a = document.createElement("a");
+a.href = url;
+a.download = "ar-selfie.jpg";
+document.body.appendChild(a);
+a.click();
+a.remove();
+
+setTimeout(()=>{
+URL.revokeObjectURL(url);
+},1000);
 
 },"image/jpeg",1.0);
+
 }
     
     
