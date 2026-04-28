@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no">
-<title>AR PhotoFrame Fixed</title>
+<title>AR PhotoFrame Stable</title>
 
 <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
 <script src="https://unpkg.com/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
@@ -19,109 +19,48 @@ background:#000;
 font-family:-apple-system,BlinkMacSystemFont,sans-serif;
 }
 
-#app{
-position:fixed;
-inset:0;
-overflow:hidden;
-background:#000;
-}
-
-video,canvas{
-position:fixed;
-inset:0;
-width:100%;
-height:100%;
-object-fit:cover;
-}
+#app{position:fixed;inset:0;overflow:hidden;background:#000;}
+video,canvas{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;}
 
 #loading{
-position:fixed;
-inset:0;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#000;
-color:#fff;
-font-size:18px;
-z-index:100;
+position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+background:#000;color:#fff;font-size:18px;z-index:100;
 }
 
 #guide{
-position:fixed;
-top:18px;
-left:15px;
-right:15px;
-z-index:30;
-text-align:center;
-color:#fff;
-font-size:17px;
-font-weight:700;
-text-shadow:0 2px 8px rgba(0,0,0,.75);
+position:fixed;top:18px;left:15px;right:15px;
+z-index:30;text-align:center;color:#fff;font-size:17px;
+font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.75);
 }
 
 #captureBtn{
-position:fixed;
-bottom:26px;
-left:50%;
+position:fixed;bottom:26px;left:50%;
 transform:translateX(-50%);
-width:88px;
-height:88px;
-border:none;
-background:transparent;
-padding:0;
-z-index:40;
-display:none;
-cursor:pointer;
+width:88px;height:88px;border:none;background:transparent;
+padding:0;z-index:40;display:none;cursor:pointer;
 }
 
-#captureBtn:active{
-transform:translateX(-50%) scale(.92);
-}
+#captureBtn:active{transform:translateX(-50%) scale(.92);}
 
 #captureBtn .outer{
-position:absolute;
-inset:0;
-border-radius:50%;
-background:#ff0000;
+position:absolute;inset:0;border-radius:50%;background:#ff0000;
 }
-
 #captureBtn .outer::after{
-content:"";
-position:absolute;
-inset:7px;
-border-radius:50%;
-background:#fff;
+content:"";position:absolute;inset:7px;border-radius:50%;background:#fff;
 }
-
 #captureBtn .inner{
-position:absolute;
-inset:12px;
-border-radius:50%;
-background:#ff0000;
+position:absolute;inset:12px;border-radius:50%;background:#ff0000;
 }
 
 #resetBtn{
-position:fixed;
-bottom:36px;
-left:22px;
-width:58px;
-height:58px;
-border:none;
-border-radius:50%;
-font-size:26px;
-color:#fff;
-background:rgba(255,255,255,.18);
-z-index:40;
-display:none;
+position:fixed;bottom:36px;left:22px;width:58px;height:58px;
+border:none;border-radius:50%;font-size:26px;color:#fff;
+background:rgba(255,255,255,.18);z-index:40;display:none;
 }
 
 #flash{
-position:fixed;
-inset:0;
-background:#fff;
-opacity:0;
-pointer-events:none;
-z-index:90;
+position:fixed;inset:0;background:#fff;opacity:0;
+pointer-events:none;z-index:90;
 }
 </style>
 </head>
@@ -247,23 +186,25 @@ preserveDrawingBuffer:true
 
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
-
 app.appendChild(renderer.domElement);
 
 scene=new THREE.Scene();
 
-/* CAMERA NORMAL */
-camera=new THREE.OrthographicCamera(
--1,1,1,-1,0.1,10
+/* CAMERA ANTIGA QUE FUNCIONA */
+camera=new THREE.PerspectiveCamera(
+28,
+innerWidth/innerHeight,
+0.1,
+100
 );
 
-camera.position.z=5;
+camera.position.z=9;
 
-/* DUPLICA PERSONAGEM PARA NOVA CENA */
+/* DUPLICA PERSONAGEM */
 const texture=mascot.material.map;
 
 mascot=new THREE.Mesh(
-new THREE.PlaneGeometry(0.55,0.82),
+new THREE.PlaneGeometry(2.8,4.2),
 new THREE.MeshBasicMaterial({
 map:texture,
 transparent:true,
@@ -273,8 +214,9 @@ alphaTest:0.2
 
 scene.add(mascot);
 
-/* FIXO NA DIREITA */
-mascot.position.set(0.58,-0.32,0);
+/* FIXO DIREITA */
+mascot.scale.set(0.70,0.70,0.70);
+mascot.position.set(0.95,-1.05,0);
 
 captureBtn.style.display="block";
 resetBtn.style.display="block";
@@ -287,6 +229,9 @@ function animate(){
 requestAnimationFrame(animate);
 
 if(!selfieMode)return;
+
+/* FIXO ABSOLUTO */
+mascot.position.set(0.95,-1.05,0);
 
 renderer.render(scene,camera);
 }
@@ -313,17 +258,12 @@ out.height=innerHeight*3;
 
 const ctx=out.getContext("2d");
 
-const vw=selfieVideo.videoWidth;
-const vh=selfieVideo.videoHeight;
-const cw=out.width;
-const ch=out.height;
-
 ctx.save();
 ctx.scale(-1,1);
-ctx.drawImage(selfieVideo,0,0,vw,vh,-cw,0,cw,ch);
+ctx.drawImage(selfieVideo,0,0,-out.width,0,out.width,out.height);
 ctx.restore();
 
-ctx.drawImage(renderer.domElement,0,0,cw,ch);
+ctx.drawImage(renderer.domElement,0,0,out.width,out.height);
 
 out.toBlob(async(blob)=>{
 
@@ -347,15 +287,20 @@ setTimeout(()=>URL.revokeObjectURL(url),1000);
 },"image/jpeg",1.0);
 }
 
-function resetApp(){
-location.reload();
-}
+function resetApp(){location.reload();}
 
 captureBtn.addEventListener("click",takePhoto);
 resetBtn.addEventListener("click",resetApp);
 
 window.addEventListener("resize",()=>{
+
 if(renderer)renderer.setSize(innerWidth,innerHeight);
+
+if(camera){
+camera.aspect=innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+}
+
 });
 </script>
 
