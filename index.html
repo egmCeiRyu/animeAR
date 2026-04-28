@@ -215,8 +215,8 @@ alphaTest:0.2
 scene.add(mascot);
 
 /* FIXO DIREITA */
-mascot.scale.set(1.2,1.2,1.2);
-mascot.position.set(0.95,-1.05,0);
+mascot.scale.set(1.5,1.5,1.5);
+mascot.position.set(0.95,-1.55,0);
 
 captureBtn.style.display="block";
 resetBtn.style.display="block";
@@ -231,8 +231,8 @@ requestAnimationFrame(animate);
 if(!selfieMode || !mascot) return;
 
 /* personagem totalmente fixo */
-mascot.scale.set(1.2,1.2,1.2);
-mascot.position.set(1.05,-0.92,0);
+mascot.scale.set(1.5,1.5,1.5);
+mascot.position.set(0.95,-1.55,0);
 mascot.rotation.set(0,0,0);
 
 renderer.render(scene,camera);
