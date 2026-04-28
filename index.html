@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no">
-<title>AR PhotoFrame 3 Characters</title>
+<title>AR PhotoFrame Fixed Character</title>
 
 <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
 <script src="https://unpkg.com/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
@@ -151,11 +151,10 @@ let scanAR, renderer, scene, camera;
 let mascot, selfieVideo;
 let selfieMode = false;
 
-/* PERSONAGENS CERTOS */
 const characterFiles = [
-"./HayamiHiro.png",     // marker 0
-"./KamihamaKoji.png",   // marker 1
-"./NishinaKazuki.png"   // marker 2
+"./HayamiHiro.png",
+"./KamihamaKoji.png",
+"./NishinaKazuki.png"
 ];
 
 window.addEventListener("load", startAR);
@@ -192,9 +191,7 @@ new THREE.PlaneGeometry(2.8,4.2),
 new THREE.MeshBasicMaterial({
 map:texture,
 transparent:true,
-alphaTest:0.2,
-    
-color: new THREE.Color(1.38, 1.38, 1.38)
+alphaTest:0.2
 })
 );
 
@@ -260,22 +257,23 @@ app.appendChild(renderer.domElement);
 
 scene = new THREE.Scene();
 
-camera = new THREE.PerspectiveCamera(
-28,
-innerWidth/innerHeight,
+/* CAMERA FIXA 2D */
+camera = new THREE.OrthographicCamera(
+innerWidth / -200,
+innerWidth / 200,
+innerHeight / 200,
+innerHeight / -200,
 0.1,
 100
 );
 
-camera.position.z = 9;
-
-scene.add(new THREE.HemisphereLight(0xffffff,0xbbbbff,1.4));
+camera.position.z = 10;
 
 scene.add(mascot);
 
-/* PARAMETROS MANTIDOS */
-mascot.scale.set(1.0,1.0,1.0);
-mascot.position.set(0.95,-0.90,0);
+/* FIXO NA TELA */
+mascot.scale.set(55,55,55);
+mascot.position.set(70,-95,0);
 
 captureBtn.style.display="block";
 resetBtn.style.display="block";
@@ -289,10 +287,7 @@ requestAnimationFrame(animate);
 
 if(!selfieMode || !mascot) return;
 
-/* mantém posição fixa */
-mascot.position.set(0.95, -1.05, 0);
-
-renderer.render(scene, camera);
+renderer.render(scene,camera);
 }
 
 function flash(){
@@ -342,11 +337,7 @@ sy=(vh-sh)/2;
 ctx.save();
 ctx.scale(-1,1);
 
-ctx.drawImage(
-selfieVideo,
-sx,sy,sw,sh,
--cw,0,cw,ch
-);
+ctx.drawImage(selfieVideo,sx,sy,sw,sh,-cw,0,cw,ch);
 
 ctx.restore();
 
@@ -372,9 +363,7 @@ a.href = url;
 a.download = "ar-selfie.jpg";
 a.click();
 
-setTimeout(()=>{
-URL.revokeObjectURL(url);
-},1000);
+setTimeout(()=>URL.revokeObjectURL(url),1000);
 
 },"image/jpeg",1.0);
 
@@ -390,11 +379,6 @@ resetBtn.addEventListener("click",resetApp);
 window.addEventListener("resize",()=>{
 
 if(renderer) renderer.setSize(innerWidth,innerHeight);
-
-if(camera){
-camera.aspect = innerWidth/innerHeight;
-camera.updateProjectionMatrix();
-}
 
 });
 </script>
